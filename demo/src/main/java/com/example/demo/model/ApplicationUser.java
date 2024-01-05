@@ -1,6 +1,10 @@
 package com.example.demo.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,6 +34,12 @@ public class ApplicationUser {
 
     @Column
     private Date dateOfBirth;
+
+    @Column
+    private String gender;
+
+    @Column
+    private String phone;
 
     @Column
     private int numberOfCountries;
