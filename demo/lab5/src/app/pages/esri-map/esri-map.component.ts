@@ -34,6 +34,8 @@ import Graphic from '@arcgis/core/Graphic';
 import Point from '@arcgis/core/geometry/Point';
 
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
+import SimpleRenderer from '@arcgis/core/renderers/SimpleRenderer';
+import SimpleFillSymbol from '@arcgis/core/symbols/SimpleFillSymbol';
 
 @Component({
   selector: "app-esri-map",
@@ -83,7 +85,7 @@ export class EsriMapComponent implements OnInit, OnDestroy {
 
       this.map = new WebMap(mapProperties);
 
-      this.addFeatureLayers();
+      this.addFeatureLayers("Romania");
       this.addGraphicLayers();
 
       this.addPoint(this.pointCoords[1], this.pointCoords[0], true);
@@ -119,18 +121,48 @@ export class EsriMapComponent implements OnInit, OnDestroy {
     this.map.add(this.graphicsLayer);
   }
 
-  addFeatureLayers() {
-  // the boundariessss
-   const layer = new FeatureLayer({
-         portalItem: {
-           id: "50391d4430c04b6abcdbc71c6b62a7de"
-         }
-       });
+  createRenderer(highlightedCountry: string): SimpleRenderer {
+    // Create a default symbol for other countries
+    const defaultSymbol = new SimpleFillSymbol({
+      color: [200, 200, 200, 0.5], // Light gray with 50% transparency
+      outline: {
+        color: [255, 255, 255, 1], // White outline
+        width: 1
+      }
+    });
 
-    this.map.add(layer);
+    // Create a red symbol for the highlighted country
+    const redSymbol = new SimpleFillSymbol({
+      color: [255, 0, 0, 0.5], // Red color with 50% transparency
+      outline: {
+        color: [255, 255, 255, 1], // White outline
+        width: 1
+      }
+    });
 
-    console.log("feature layers added");
+    // Create a renderer using the symbols
+    const renderer = new SimpleRenderer({
+      symbol: defaultSymbol // Start with the default symbol
+    });
+       // Update the renderer symbol for the highlighted country
+       renderer.symbol = highlightedCountry === 'Romania' ? redSymbol : defaultSymbol;
+
+
+    return renderer;
   }
+  addFeatureLayers(highlightedCountry: string) {
+      // the boundaries
+      const layer = new FeatureLayer({
+        portalItem: {
+          id: "50391d4430c04b6abcdbc71c6b62a7de"
+        },
+        renderer: this.createRenderer(highlightedCountry) // Apply renderer to the layer
+      });
+
+      this.map.add(layer);
+
+      console.log("feature layers added");
+    }
 
   addPoint(lat: number, lng: number, register: boolean) {
     let point = new Point({
