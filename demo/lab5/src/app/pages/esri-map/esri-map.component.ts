@@ -36,6 +36,8 @@ import Point from '@arcgis/core/geometry/Point';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import SimpleRenderer from '@arcgis/core/renderers/SimpleRenderer';
 import SimpleFillSymbol from '@arcgis/core/symbols/SimpleFillSymbol';
+import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
+
 
 import { AppSearchBarComponent } from "./search-bar.component";
 
@@ -125,19 +127,10 @@ export class EsriMapComponent implements OnInit, OnDestroy {
     this.map.add(this.graphicsLayer);
   }
 
-  createRenderer(highlightedCountry: string): SimpleRenderer {
+  createRenderer(): SimpleRenderer {
     // Create a default symbol for other countries
     const defaultSymbol = new SimpleFillSymbol({
       color: [200, 200, 200, 0.5], // Light gray with 50% transparency
-      outline: {
-        color: [255, 255, 255, 1], // White outline
-        width: 1
-      }
-    });
-
-    // Create a red symbol for the highlighted country
-    const redSymbol = new SimpleFillSymbol({
-      color: [255, 0, 0, 0.5], // Red color with 50% transparency
       outline: {
         color: [255, 255, 255, 1], // White outline
         width: 1
@@ -149,24 +142,79 @@ export class EsriMapComponent implements OnInit, OnDestroy {
       symbol: defaultSymbol // Start with the default symbol
     });
        // Update the renderer symbol for the highlighted country
-       renderer.symbol = highlightedCountry === 'Romania' ? redSymbol : defaultSymbol;
-
+    //renderer.symbol = defaultSymbol;
 
     return renderer;
   }
+  createRedRenderer(): SimpleRenderer {
+  const redSymbol = new SimpleFillSymbol({
+        color: [255, 0, 0, 0.5], // Red color with 50% transparency
+        outline: {
+          color: [255, 255, 255, 1], // White outline
+          width: 1
+        }
+      });
+      const renderer = new SimpleRenderer({
+            symbol: redSymbol // Start with the default symbol
+          });
+          return renderer;}
+
+createDefaultSymbol(): SimpleFillSymbol {
+  return new SimpleFillSymbol({
+    color: [200, 200, 200, 0.5], // Light gray with 50% transparency
+    outline: {
+      color: [255, 255, 255, 1], // White outline
+      width: 1
+    }
+  });
+}
+
+createRedSymbol(): SimpleFillSymbol {
+  return new SimpleFillSymbol({
+    color: [255, 0, 0, 0.5], // Red color with 50% transparency
+    outline: {
+      color: [255, 255, 255, 1], // White outline
+      width: 1
+    }
+  });
+}
   addFeatureLayers(highlightedCountry: string) {
       // the boundaries
       const layer = new FeatureLayer({
         portalItem: {
           id: "50391d4430c04b6abcdbc71c6b62a7de"
         },
-        renderer: this.createRenderer(highlightedCountry) // Apply renderer to the layer
+        renderer: this.createRenderer() // Apply renderer to the layer
       });
 
+      layer.queryFeatures().then((response) => {
+        const firstFeature = response.features[0];
+        const name = firstFeature.attributes.name;
+        // Create a UniqueValueRenderer for the layer
+            const uniqueValueRenderer = new UniqueValueRenderer({
+              field: "name", // Field to match
+              defaultSymbol: this.createDefaultSymbol(), // Default symbol for other features
+              uniqueValueInfos: [
+                {
+                  value: name, // Value to match for the first feature
+                  symbol: this.createRedSymbol() // Symbol for the first feature
+                }
+                // Add more uniqueValueInfos if needed
+              ]
+            });
+
+            // Apply the renderer to the layer
+            layer.renderer = uniqueValueRenderer;
+        console.log(name);
+      });
       this.map.add(layer);
 
       console.log("feature layers added");
     }
+
+
+
+
 
   addPoint(lat: number, lng: number, register: boolean) {
     let point = new Point({
