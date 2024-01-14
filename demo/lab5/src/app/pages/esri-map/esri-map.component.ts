@@ -37,10 +37,12 @@ import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import SimpleRenderer from '@arcgis/core/renderers/SimpleRenderer';
 import SimpleFillSymbol from '@arcgis/core/symbols/SimpleFillSymbol';
 
+import { AppSearchBarComponent } from "./search-bar.component";
+
 @Component({
   selector: "app-esri-map",
   templateUrl: "./esri-map.component.html",
-  styleUrls: ["./esri-map.component.scss"]
+  styleUrls: ["./esri-map.component.scss"],
 })
 export class EsriMapComponent implements OnInit, OnDestroy {
   // The <div> where we will place the map
@@ -51,6 +53,7 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   view: esri.MapView;
   pointGraphic: esri.Graphic;
   graphicsLayer: esri.GraphicsLayer;
+  searchBar: AppSearchBarComponent;
 
   // Attributes
   zoom = 10;
@@ -68,6 +71,7 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   subscriptionObj: Subscription;
 
   onSearch(countryName: string) {
+    console.log(countryName);
   }
   constructor(
     private fbs: FirebaseService
