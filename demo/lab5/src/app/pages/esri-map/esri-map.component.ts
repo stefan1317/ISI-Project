@@ -61,7 +61,7 @@ export class EsriMapComponent implements OnInit, OnDestroy {
 
   layer = new FeatureLayer({
     portalItem: {
-      id: "50391d4430c04b6abcdbc71c6b62a7de"
+      id: "3f406805b72f4d579efa4fefcd567439"
     },
     renderer: this.createRenderer() // Apply renderer to the layer
   });
@@ -89,33 +89,15 @@ export class EsriMapComponent implements OnInit, OnDestroy {
 
     //de adaugat in baza de date
 
-//     if (this.countries && this.countries.length > 0) {
-//       // Creează array-ul de uniqueValueInfos prin parcurgerea fiecărui element din this.countries
-//       const uniqueValueInfos = this.countries.map(country => ({
-//         value: country.name,
-//         symbol: this.createRedSymbol() // Symbol pentru fiecare țară
-//       }));
-    
-//       // Adaugă array-ul de uniqueValueInfos în cazul în care există elemente în this.countries
-//       if (uniqueValueInfos.length > 0) {
-//         uniqueValueInfos.push({
-//           value: this.countries[0].name, // Adaugă și primul obiect "name" din this.countries
-//           symbol: this.createRedSymbol() // Symbol pentru primul obiect "name"
-//         });
-//       }
-//       // Creează obiectul UniqueValueRenderer cu array-ul de uniqueValueInfos
-//   const uniqueValueRenderer = new UniqueValueRenderer({
-//     field: "name", // Câmpul pentru a face potrivirea
-//     defaultSymbol: this.createDefaultSymbol(), // Simbol implicit pentru celelalte obiecte
-//     uniqueValueInfos: uniqueValueInfos
-//   });
+    const uniqueValueInfos = new Array();
+    for (let i = 0; i < this.indexCountries; i++) {
+      const uniqueValue = {
+        value: countryName,
+        symbol: this.createRedSymbol()
+      }
+      uniqueValueInfos[i] = uniqueValue;
+    }
 
-//   // Setează renderer-ul pe stratul tău
-//   // De exemplu, dacă ai un strat numit "myLayer", poți face:
-//   // myLayer.renderer = uniqueValueRenderer;
-// } else {
-//   console.error('Eroare: this.countries nu este definit sau nu are elemente.');
-// }
 
     // const uniqueValueInfos = this.countries.map(country => {
     //   return {
@@ -124,39 +106,39 @@ export class EsriMapComponent implements OnInit, OnDestroy {
     //   };
     // });
 
-    // const uniqueValueRenderer = new UniqueValueRenderer({
-    //   field: "name", // Câmpul pentru a face potrivirea
-    //   defaultSymbol: this.createDefaultSymbol(), // Simbol implicit pentru celelalte obiecte
-    //   uniqueValueInfos: uniqueValueInfos
-    // });
+    const uniqueValueRenderer = new UniqueValueRenderer({
+      field: "name", // Câmpul pentru a face potrivirea
+      defaultSymbol: this.createDefaultSymbol(), // Simbol implicit pentru celelalte obiecte
+      uniqueValueInfos: uniqueValueInfos
+    });
     
+    this.layer.renderer = uniqueValueRenderer;
 
-    for (let index = 0; index < this.indexCountries; index++) {
+    // for (let index = 0; index < this.indexCountries; index++) {
     
-        const name = this.countries[index];
-        // Create a UniqueValueRenderer for the layer
-            const uniqueValueRenderer = new UniqueValueRenderer({
-              field: "name", // Field to match
-              defaultSymbol: this.createDefaultSymbol(), // Default symbol for other features
-              uniqueValueInfos: [
-                {
-                  value: name, // Value to match for the first feature
-                  symbol: this.createRedSymbol() // Symbol for the first feature
-                }, 
-                {
-                  value: this.countries[0], // Value to match for the first feature
-                  symbol: this.createRedSymbol() // Symbol for the first feature
-                }, 
+    //     const name = this.countries[index];
+    //     // Create a UniqueValueRenderer for the layer
+    //         const uniqueValueRenderer = new UniqueValueRenderer({
+    //           field: "name", // Field to match
+    //           defaultSymbol: this.createDefaultSymbol(), // Default symbol for other features
+    //           uniqueValueInfos: [
+    //             {
+    //               value: name, // Value to match for the first feature
+    //               symbol: this.createRedSymbol() // Symbol for the first feature
+    //             }, 
+    //             {
+    //               value: this.countries[0], // Value to match for the first feature
+    //               symbol: this.createRedSymbol() // Symbol for the first feature
+    //             }, 
 
-                // Add more uniqueValueInfos if needed
-              ]
-            });
-           this.layer.renderer = uniqueValueRenderer;
-    }
+    //             // Add more uniqueValueInfos if needed
+    //           ]
+    //         });
+    //        this.layer.renderer = uniqueValueRenderer;
+    // }
     
     // Apply the renderer to the layer
     
-  
     this.map.add(this.layer);
   }
 
@@ -172,7 +154,7 @@ export class EsriMapComponent implements OnInit, OnDestroy {
         basemap: this.basemap
       };
 
-      Config.apiKey = "AAPK3d3d7e6b97a54d9aa874267b143844c4EwokuxKaJidQ3kY3cYyYoWQYW90mGO1xxEmOuP9fpVB8Ms3cTVUJStdch1IHKWLV";
+      Config.apiKey = "AAPK4362d1e510c5410783ea83c5fb2ae5d5mEO3vAC2Gw924ONPAGp0sbEyo5B6onZKVh_T-GG8DIPvn5rdsbz0JSv-mUlC8L2z";
 
       this.map = new WebMap(mapProperties);
 
@@ -267,6 +249,7 @@ createRedSymbol(): SimpleFillSymbol {
 }
 
 addFeatureLayers() {
+
       //baza de date colorat 
 
       // this.layer.queryFeatures().then((response) => {
