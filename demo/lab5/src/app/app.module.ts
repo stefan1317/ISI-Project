@@ -23,9 +23,10 @@ import { MatListModule } from '@angular/material/list';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { AppSearchBarComponent } from './pages/esri-map/search-bar.component';
+import { AppSearchLandmarkComponent } from "./pages/esri-map/search-landmark.component";
 
 @NgModule({
-  declarations: [AppComponent, EsriMapComponent, AppSearchBarComponent],
+  declarations: [AppComponent, EsriMapComponent, AppSearchBarComponent, AppSearchLandmarkComponent],
   imports: [
     BrowserModule,
     FormsModule,  // Add FormsModule here

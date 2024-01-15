@@ -1,14 +1,14 @@
-<!-- Here's the DIV that we inject the map into -->
-<div class="forSearch" fxLayout="row">
-    <div class="forSearch" fxFlex="20%">
+<div class="forSearch" fxLayout="column">
+    <div class="forSearch" fxFlex="20%" fxLayout="row">
         <mat-list>
             <mat-list-item>
                 <app-search-bar (searchCountry)="onSearch($event)"></app-search-bar>
+            </mat-list-item>                                        
+            <mat-list-item>
+                <app-search-landmark (searchLandmark)="onSearchLandmark($event)"></app-search-landmark>
             </mat-list-item>
         </mat-list>
     </div>
     <div fxFlex="80%">
         <div #mapViewNode></div>
     </div>
-</div>
-

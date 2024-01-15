@@ -16,7 +16,8 @@ import {
   OnInit,
   ViewChild,
   ElementRef,
-  OnDestroy
+  OnDestroy,
+  CUSTOM_ELEMENTS_SCHEMA
 } from "@angular/core";
 
 import esri = __esri; // Esri TypeScript Types
@@ -43,8 +44,9 @@ import RouteParameters from '@arcgis/core/rest/support/RouteParameters';
 import * as route from "@arcgis/core/rest/route.js";
 import * as locator from "@arcgis/core/rest/locator.js";
 
+// import { AppSearchBarComponent } from "./search-bar.component";
+// import { AppSearchBarComponent2 } from "./search-landmark.component";
 
-import { AppSearchBarComponent } from "./search-bar.component";
 class SpatialReference {
   wkid;
   latestWkis;
@@ -86,7 +88,7 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   view: esri.MapView;
   pointGraphic: esri.Graphic;
   graphicsLayer: esri.GraphicsLayer;
-  forSearchButton: string;
+  landmarkName: string;
 
   countries = new Array(195);
   indexCountries: number = 0;
@@ -113,11 +115,14 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   subscriptionList: Subscription;
   subscriptionObj: Subscription;
 
+  onSearchLandmark(landmark: string) {
+    this.findPlaces(landmark);
+  }
+
   onSearch(countryName: string) {
     console.log("The selected country is: " + countryName);
 
     this.countries[this.indexCountries++] = countryName;
-    this.forSearchButton = countryName;
     //de adaugat in baza de date
 
     const uniqueValueInfos = new Array();
@@ -329,12 +334,12 @@ addFeatureLayers() {
         });
       }
     }
-  findPlaces(x) {
+  findPlaces(landmark) {
       const geocodingServiceUrl = "http://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
 
       const params = {
         address: {
-          address: this.forSearchButton
+          address: landmark
         },
         //location: x,
         f: "json",
