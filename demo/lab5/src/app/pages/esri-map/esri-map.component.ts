@@ -92,19 +92,11 @@ export class EsriMapComponent implements OnInit, OnDestroy {
     const uniqueValueInfos = new Array();
     for (let i = 0; i < this.indexCountries; i++) {
       const uniqueValue = {
-        value: countryName,
+        value: this.countries[i],
         symbol: this.createRedSymbol()
       }
       uniqueValueInfos[i] = uniqueValue;
     }
-
-
-    // const uniqueValueInfos = this.countries.map(country => {
-    //   return {
-    //     value: country,
-    //     symbol: this.createRedSymbol() // Symbol pentru fiecare țară
-    //   };
-    // });
 
     const uniqueValueRenderer = new UniqueValueRenderer({
       field: "name", // Câmpul pentru a face potrivirea
@@ -113,29 +105,6 @@ export class EsriMapComponent implements OnInit, OnDestroy {
     });
     
     this.layer.renderer = uniqueValueRenderer;
-
-    // for (let index = 0; index < this.indexCountries; index++) {
-    
-    //     const name = this.countries[index];
-    //     // Create a UniqueValueRenderer for the layer
-    //         const uniqueValueRenderer = new UniqueValueRenderer({
-    //           field: "name", // Field to match
-    //           defaultSymbol: this.createDefaultSymbol(), // Default symbol for other features
-    //           uniqueValueInfos: [
-    //             {
-    //               value: name, // Value to match for the first feature
-    //               symbol: this.createRedSymbol() // Symbol for the first feature
-    //             }, 
-    //             {
-    //               value: this.countries[0], // Value to match for the first feature
-    //               symbol: this.createRedSymbol() // Symbol for the first feature
-    //             }, 
-
-    //             // Add more uniqueValueInfos if needed
-    //           ]
-    //         });
-    //        this.layer.renderer = uniqueValueRenderer;
-    // }
     
     // Apply the renderer to the layer
     
@@ -251,28 +220,6 @@ createRedSymbol(): SimpleFillSymbol {
 addFeatureLayers() {
 
       //baza de date colorat 
-
-      // this.layer.queryFeatures().then((response) => {
-      //   const firstFeature = response.features[0];
-      //   const name = firstFeature.attributes.name;
-      //   // Create a UniqueValueRenderer for the layer
-      //       const uniqueValueRenderer = new UniqueValueRenderer({
-      //         field: "name", // Field to match
-      //         defaultSymbol: this.createDefaultSymbol(), // Default symbol for other features
-      //         uniqueValueInfos: [
-      //           {
-      //             value: name, // Value to match for the first feature
-      //             symbol: this.createRedSymbol() // Symbol for the first feature
-      //           }
-      //           // Add more uniqueValueInfos if needed
-      //         ]
-      //       });
-
-      //       // Apply the renderer to the layer
-      //       this.layer.renderer = uniqueValueRenderer;
-      //   console.log(name);
-      // });
-      // this.map.add(this.layer);
 
       console.log("feature layers added");
     }
