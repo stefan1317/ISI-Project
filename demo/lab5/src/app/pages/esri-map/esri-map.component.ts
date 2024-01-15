@@ -86,6 +86,7 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   view: esri.MapView;
   pointGraphic: esri.Graphic;
   graphicsLayer: esri.GraphicsLayer;
+  forSearchButton: string;
 
   countries = new Array(195);
   indexCountries: number = 0;
@@ -99,14 +100,13 @@ export class EsriMapComponent implements OnInit, OnDestroy {
 
   // Attributes
   zoom = 10;
-  center: Array<number> = [-118.73682450024377, 34.07817583063242];
+  center: Array<number> = [44.43225, 26.10626];
   basemap = "streets-vector";
   loaded = false;
-  pointCoords: number[] = [-118.73682450024377, 34.07817583063242];
+  pointCoords: number[] = [44.43225, 26.10626];
   dir: number = 0;
   count: number = 0;
   timeoutHandler = null;
-  countryName = null;
 
   // firebase sync
   isConnected: boolean = false;
@@ -116,9 +116,8 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   onSearch(countryName: string) {
     console.log("The selected country is: " + countryName);
 
-
     this.countries[this.indexCountries++] = countryName;
-
+    this.forSearchButton = countryName;
     //de adaugat in baza de date
 
     const uniqueValueInfos = new Array();
@@ -331,12 +330,11 @@ addFeatureLayers() {
       }
     }
   findPlaces(x) {
-  console.log("Calling findPlaces with countryName:", this.countryName);
       const geocodingServiceUrl = "http://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
 
       const params = {
         address: {
-          address: this.countryName
+          address: this.forSearchButton
         },
         //location: x,
         f: "json",
@@ -352,24 +350,6 @@ addFeatureLayers() {
         this.view.popup.close();
           this.view.graphics.removeAll();
           results.forEach((result : LocationInfo)=>{
-            // this.graphicsLayer.add(
-            //   new Graphic({
-            //     attributes: result.attributes,
-            //     geometry: result.location,
-            //     symbol:   new SimpleMarkerSymbol({
-            //      type: "simple-marker",
-            //      color: "red",
-            //      size: "10px",
-            //      outline: {
-            //        color: "#ffffff",
-            //        width: "2px"
-            //      }
-            //     }),
-            //     popupTemplate: {
-            //       title: "{PlaceName}",
-            //       content: "{Place_addr}" + "<br><br>" + result.location.x.toFixed(5) + "," + result.location.y.toFixed(5)
-            //     }
-            //  }));
 
             const simpleMarkerSymbol = {
               type: "simple-marker",
@@ -396,10 +376,7 @@ addFeatureLayers() {
             });
           }
       }
-
-
-
-  addPoint(lat: number, lng: number, register: boolean) {
+addPoint(lat: number, lng: number, register: boolean) {
     let point = new Point({
       longitude: lng,
       latitude: lat
@@ -441,32 +418,28 @@ addFeatureLayers() {
 
   animatePointDemo() {
     this.removePoint();
-    switch (this.dir) {
-      case 0:
-        this.pointCoords[1] += 0.01;
-        break;
-      case 1:
-        this.pointCoords[0] += 0.02;
-        break;
-      case 2:
-        this.pointCoords[1] -= 0.01;
-        break;
-      case 3:
-        this.pointCoords[0] -= 0.02;
-        break;
-    }
+    const startPoint = { latitude: this.pointCoords[1], longitude: this.pointCoords[0] };
+      const endPoint = { latitude: 38.8951, longitude: -90.0060 };
 
-    this.count += 1;
-    if (this.count >= 10) {
-      this.count = 0;
-      this.dir += 1;
-      if (this.dir > 3) {
-        this.dir = 0;
-      }
-    }
+      // Calculate the step size for latitude and longitude
+      const stepLat = (endPoint.latitude - startPoint.latitude) / 70;
+      const stepLng = (endPoint.longitude - startPoint.longitude) / 70;
 
-    this.addPoint(this.pointCoords[1], this.pointCoords[0], true);
-    this.fbs.syncPointItem(this.pointCoords[1], this.pointCoords[0])
+      // Update the point coordinates
+      this.pointCoords[1] += stepLat;
+      this.pointCoords[0] += stepLng;
+
+      if(endPoint.latitude == this.pointCoords[1] && endPoint.longitude == this.pointCoords[0])
+     {
+      endPoint.latitude = 48;
+      endPoint.longitude = 2;
+     }
+
+      this.addPoint(this.pointCoords[1], this.pointCoords[0], true);
+      this.fbs.syncPointItem(this.pointCoords[1], this.pointCoords[0]);
+//
+//     this.addPoint(this.pointCoords[1], this.pointCoords[0], true);
+//     this.fbs.syncPointItem(this.pointCoords[1], this.pointCoords[0])
   }
 
   stopTimer() {
