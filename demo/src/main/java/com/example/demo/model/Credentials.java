@@ -6,6 +6,6 @@ import lombok.ToString;
 @Data
 @ToString
 public class Credentials {
-    private String username;
+    private String email;
     private String password;
 }
