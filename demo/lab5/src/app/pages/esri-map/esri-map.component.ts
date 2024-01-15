@@ -38,8 +38,39 @@ import SimpleRenderer from '@arcgis/core/renderers/SimpleRenderer';
 import SimpleFillSymbol from '@arcgis/core/symbols/SimpleFillSymbol';
 import UniqueValueRenderer from "@arcgis/core/renderers/UniqueValueRenderer";
 
+import FeatureSet from '@arcgis/core/rest/support/FeatureSet';
+import RouteParameters from '@arcgis/core/rest/support/RouteParameters';
+import * as route from "@arcgis/core/rest/route.js";
+import * as locator from "@arcgis/core/rest/locator.js";
+
 
 import { AppSearchBarComponent } from "./search-bar.component";
+class SpatialReference {
+  wkid;
+  latestWkis;
+  constructor(wkid,latestWkis) {
+    this.wkid = wkid;
+    this.latestWkis = latestWkis;
+  }
+}
+
+class LocationInfo {
+  spatialReference : SpatialReference;
+  location;
+  address;
+  score;
+  attributes;
+  constructor(spatialReference, x, y, address, score, placeName, placeAddress) {
+    this.spatialReference = spatialReference;
+    this.location = { x, y };
+    this.address = address;
+    this.score = score;
+    this.attributes = {
+      PlaceName: placeName,
+      Place_addr: placeAddress
+    };
+  }
+}
 
 @Component({
   selector: "app-esri-map",
@@ -55,6 +86,7 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   view: esri.MapView;
   pointGraphic: esri.Graphic;
   graphicsLayer: esri.GraphicsLayer;
+  forSearchButton: string;
 
   countries = new Array(195);
   indexCountries: number = 0;
@@ -68,10 +100,10 @@ export class EsriMapComponent implements OnInit, OnDestroy {
 
   // Attributes
   zoom = 10;
-  center: Array<number> = [-118.73682450024377, 34.07817583063242];
+  center: Array<number> = [44.43225, 26.10626];
   basemap = "streets-vector";
   loaded = false;
-  pointCoords: number[] = [-118.73682450024377, 34.07817583063242];
+  pointCoords: number[] = [44.43225, 26.10626];
   dir: number = 0;
   count: number = 0;
   timeoutHandler = null;
@@ -84,9 +116,8 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   onSearch(countryName: string) {
     console.log("The selected country is: " + countryName);
 
-
     this.countries[this.indexCountries++] = countryName;
-
+    this.forSearchButton = countryName;
     //de adaugat in baza de date
 
     const uniqueValueInfos = new Array();
@@ -103,11 +134,11 @@ export class EsriMapComponent implements OnInit, OnDestroy {
       defaultSymbol: this.createDefaultSymbol(), // Simbol implicit pentru celelalte obiecte
       uniqueValueInfos: uniqueValueInfos
     });
-    
+
     this.layer.renderer = uniqueValueRenderer;
-    
+
     // Apply the renderer to the layer
-    
+
     this.map.add(this.layer);
   }
 
@@ -128,6 +159,7 @@ export class EsriMapComponent implements OnInit, OnDestroy {
       this.map = new WebMap(mapProperties);
 
       this.addFeatureLayers();
+      this.findPlaces([-117.196, 34.056]);
       this.addGraphicLayers();
 
       this.map.add(this.layer);
@@ -143,6 +175,7 @@ export class EsriMapComponent implements OnInit, OnDestroy {
       };
 
       this.view = new MapView(mapViewProperties);
+      this.addRouter();
 
       // Fires `pointer-move` event when user clicks on "Shift"
       // key and moves the pointer on the view.
@@ -219,12 +252,131 @@ createRedSymbol(): SimpleFillSymbol {
 
 addFeatureLayers() {
 
-      //baza de date colorat 
+      //baza de date colorat
 
       console.log("feature layers added");
     }
+    addRouter() {
+      const routeUrl = "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
 
-  addPoint(lat: number, lng: number, register: boolean) {
+      this.view.on("click", (event) => {
+        console.log("point clicked: ", event.mapPoint.latitude, event.mapPoint.longitude);
+        if (this.view.graphics.length === 0) {
+          addGraphic("origin", event.mapPoint);
+        } else if (this.view.graphics.length === 1) {
+          addGraphic("destination", event.mapPoint);
+          getRoute(); // Call the route service
+        } else {
+          this.view.graphics.removeAll();
+          addGraphic("origin", event.mapPoint);
+        }
+      });
+
+      var addGraphic = (type: any, point: any) => {
+        const graphic = new Graphic({
+          symbol: {
+            type: "simple-marker",
+            color: (type === "origin") ? "white" : "black",
+            size: "8px"
+          } as any,
+          geometry: point
+        });
+        this.view.graphics.add(graphic);
+      }
+
+      var getRoute = () => {
+        const routeParams = new RouteParameters({
+          stops: new FeatureSet({
+            features: this.view.graphics.toArray()
+          }),
+          returnDirections: true
+        });
+
+        route.solve(routeUrl, routeParams).then((data: any) => {
+          for (let result of data.routeResults) {
+            result.route.symbol = {
+              type: "simple-line",
+              color: [5, 150, 255],
+              width: 3
+            };
+            this.view.graphics.add(result.route);
+          }
+
+          // Display directions
+          if (data.routeResults.length > 0) {
+            const directions: any = document.createElement("ol");
+            directions.classList = "esri-widget esri-widget--panel esri-directions__scroller";
+            directions.style.marginTop = "0";
+            directions.style.padding = "15px 15px 15px 30px";
+            const features = data.routeResults[0].directions.features;
+
+            let sum = 0;
+            // Show each direction
+            features.forEach((result: any, i: any) => {
+              sum += parseFloat(result.attributes.length);
+              const direction = document.createElement("li");
+              direction.innerHTML = result.attributes.text + " (" + result.attributes.length + " miles)";
+              directions.appendChild(direction);
+            });
+
+            sum = sum * 1.609344;
+            console.log('dist (km) = ', sum);
+            this.view.ui.empty("top-right");
+            this.view.ui.add(directions, "top-right");
+          }
+        }).catch((error: any) => {
+          console.log(error);
+        });
+      }
+    }
+  findPlaces(x) {
+      const geocodingServiceUrl = "http://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
+
+      const params = {
+        address: {
+          address: this.forSearchButton
+        },
+        //location: x,
+        f: "json",
+        token: "AAPK52d38feee5af4fe9bdfd773689ad7364LJfRy7t3A73137Q7dZGLRUTCid4xZ6V4lODMFh7BjMFaQzsp5GsXITuXtm1ELo8I",
+        outFields: ["PlaceName","Place_addr"]
+      }
+
+      locator.addressToLocations(geocodingServiceUrl, params).then((results)=> {
+        this.showResults(results);
+      });
+    }
+    showResults(results) {
+        this.view.popup.close();
+          this.view.graphics.removeAll();
+          results.forEach((result : LocationInfo)=>{
+
+            const simpleMarkerSymbol = {
+              type: "simple-marker",
+              color: [226, 119, 255],  // Orange
+              outline: {
+                color: [255, 255, 255], // White
+                width: 1
+              }
+            };
+
+            this.graphicsLayer.add(new Graphic({
+              geometry: new Point({
+                longitude: result.location.x,
+                latitude: result.location.y
+              }),
+              symbol: simpleMarkerSymbol
+            }))
+          });
+          if (results.length) {
+            const g = this.view.graphics.getItemAt(0);
+            this.view.openPopup({
+              features: [g],
+              location: g.geometry
+            });
+          }
+      }
+addPoint(lat: number, lng: number, register: boolean) {
     let point = new Point({
       longitude: lng,
       latitude: lat
@@ -266,32 +418,28 @@ addFeatureLayers() {
 
   animatePointDemo() {
     this.removePoint();
-    switch (this.dir) {
-      case 0:
-        this.pointCoords[1] += 0.01;
-        break;
-      case 1:
-        this.pointCoords[0] += 0.02;
-        break;
-      case 2:
-        this.pointCoords[1] -= 0.01;
-        break;
-      case 3:
-        this.pointCoords[0] -= 0.02;
-        break;
-    }
+    const startPoint = { latitude: this.pointCoords[1], longitude: this.pointCoords[0] };
+      const endPoint = { latitude: 38.8951, longitude: -90.0060 };
 
-    this.count += 1;
-    if (this.count >= 10) {
-      this.count = 0;
-      this.dir += 1;
-      if (this.dir > 3) {
-        this.dir = 0;
-      }
-    }
+      // Calculate the step size for latitude and longitude
+      const stepLat = (endPoint.latitude - startPoint.latitude) / 70;
+      const stepLng = (endPoint.longitude - startPoint.longitude) / 70;
 
-    this.addPoint(this.pointCoords[1], this.pointCoords[0], true);
-    this.fbs.syncPointItem(this.pointCoords[1], this.pointCoords[0])
+      // Update the point coordinates
+      this.pointCoords[1] += stepLat;
+      this.pointCoords[0] += stepLng;
+
+      if(endPoint.latitude == this.pointCoords[1] && endPoint.longitude == this.pointCoords[0])
+     {
+      endPoint.latitude = 48;
+      endPoint.longitude = 2;
+     }
+
+      this.addPoint(this.pointCoords[1], this.pointCoords[0], true);
+      this.fbs.syncPointItem(this.pointCoords[1], this.pointCoords[0]);
+//
+//     this.addPoint(this.pointCoords[1], this.pointCoords[0], true);
+//     this.fbs.syncPointItem(this.pointCoords[1], this.pointCoords[0])
   }
 
   stopTimer() {
