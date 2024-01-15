@@ -1,19 +1,7 @@
 <!-- Here's the DIV that we inject the map into -->
-
-<div fxLayout="row">
-    <div fxFlex="20%" fxLayout="column">
+<div class="forSearch" fxLayout="row">
+    <div class="forSearch" fxFlex="20%">
         <mat-list>
-            <mat-list-item>
-                <span class="label">Firebase</span>
-            </mat-list-item>
-            <mat-divider></mat-divider>
-            <mat-list-item>
-                <button mat-button mat-button color="primary" class="full-w" (click)="connectFirebase()">Connect</button>
-            </mat-list-item>
-            <mat-divider></mat-divider>
-            <mat-list-item>
-                <button mat-button mat-button color="primary" class="full-w" (click)="addPointItem()">Add item</button>
-            </mat-list-item>
             <mat-list-item>
                 <app-search-bar (searchCountry)="onSearch($event)"></app-search-bar>
             </mat-list-item>
@@ -23,3 +11,4 @@
         <div #mapViewNode></div>
     </div>
 </div>
+

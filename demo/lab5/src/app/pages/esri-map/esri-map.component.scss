@@ -1,8 +1,46 @@
 /* import the required JSAPI css */
 // @import url('https://js.arcgis.com/4.12/esri/css/main.css');
+* {
+  margin:0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', 'sans-serif';
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: url('login.jpg') no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+.forSearch {
+  background: url('login.jpg') no-repeat;
+  height: 800px;
+}
+
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 20px 100px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 99;
+}
+
+h2 {
+  font-size: 2em;
+  color: #fff;
+  user-select: none;
+}
 
 .esri-view {
-  height: 500px;
+  height: 100%;
 }
 
 .label {
