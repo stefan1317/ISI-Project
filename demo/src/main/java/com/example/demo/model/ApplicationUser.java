@@ -36,6 +36,9 @@ public class ApplicationUser {
     private Date dateOfBirth;
 
     @Column
+    private String natalCountry;
+
+    @Column
     private String gender;
 
     @Column

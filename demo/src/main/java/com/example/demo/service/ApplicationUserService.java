@@ -34,11 +34,12 @@ public class ApplicationUserService {
         ApplicationUser newUser = new ApplicationUser();
         newUser.setEmail(registerDTO.getEmail());
         newUser.setPassword(registerDTO.getPassword());
-        newUser.setFirstName(registerDTO.getFirstName());
-        newUser.setLastName(registerDTO.getLastName());
-        newUser.setGender(registerDTO.getGender());
-        newUser.setPhone(registerDTO.getPhone());
-        newUser.setDateOfBirth(registerDTO.getDateOfBirth());
+//        newUser.setFirstName(registerDTO.getFirstName());
+//        newUser.setLastName(registerDTO.getLastName());
+//        newUser.setGender(registerDTO.getGender());
+//        newUser.setPhone(registerDTO.getPhone());
+//        newUser.setDateOfBirth(registerDTO.getDateOfBirth());
+        newUser.setNatalCountry(registerDTO.getNatalCountry());
 
         applicationUserRepository.save(newUser);
 
@@ -53,12 +54,13 @@ public class ApplicationUserService {
 
     public ApplicationUser performLoginAndGenerateJWT(Credentials credentials, HttpServletResponse response) {
         Optional<ApplicationUser> userOptional = this.applicationUserRepository.findByEmailAndPassword(
-                credentials.getUsername(),
+                credentials.getEmail(),
                 credentials.getPassword()
         );
 
         if (userOptional.isPresent()) {
             Cookie cookie = new Cookie("auth", Utils.generateToken(userOptional.get()));
+            //add cookie here
             response.addCookie(cookie);
             return userOptional.get();
 
