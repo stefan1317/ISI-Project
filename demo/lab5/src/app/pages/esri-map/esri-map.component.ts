@@ -86,7 +86,16 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   view: esri.MapView;
   pointGraphic: esri.Graphic;
   graphicsLayer: esri.GraphicsLayer;
-  searchBar: AppSearchBarComponent;
+
+  countries = new Array(195);
+  indexCountries: number = 0;
+
+  layer = new FeatureLayer({
+    portalItem: {
+      id: "3f406805b72f4d579efa4fefcd567439"
+    },
+    renderer: this.createRenderer() // Apply renderer to the layer
+  });
 
   // Attributes
   zoom = 10;
@@ -105,8 +114,64 @@ export class EsriMapComponent implements OnInit, OnDestroy {
   subscriptionObj: Subscription;
 
   onSearch(countryName: string) {
-    this.countryName = countryName;
-    console.log("Country name entered:", countryName);
+    console.log("The selected country is: " + countryName);
+
+
+    this.countries[this.indexCountries++] = countryName;
+
+    //de adaugat in baza de date
+
+    const uniqueValueInfos = new Array();
+    for (let i = 0; i < this.indexCountries; i++) {
+      const uniqueValue = {
+        value: countryName,
+        symbol: this.createRedSymbol()
+      }
+      uniqueValueInfos[i] = uniqueValue;
+    }
+
+
+    // const uniqueValueInfos = this.countries.map(country => {
+    //   return {
+    //     value: country,
+    //     symbol: this.createRedSymbol() // Symbol pentru fiecare țară
+    //   };
+    // });
+
+    const uniqueValueRenderer = new UniqueValueRenderer({
+      field: "name", // Câmpul pentru a face potrivirea
+      defaultSymbol: this.createDefaultSymbol(), // Simbol implicit pentru celelalte obiecte
+      uniqueValueInfos: uniqueValueInfos
+    });
+
+    this.layer.renderer = uniqueValueRenderer;
+
+    // for (let index = 0; index < this.indexCountries; index++) {
+
+    //     const name = this.countries[index];
+    //     // Create a UniqueValueRenderer for the layer
+    //         const uniqueValueRenderer = new UniqueValueRenderer({
+    //           field: "name", // Field to match
+    //           defaultSymbol: this.createDefaultSymbol(), // Default symbol for other features
+    //           uniqueValueInfos: [
+    //             {
+    //               value: name, // Value to match for the first feature
+    //               symbol: this.createRedSymbol() // Symbol for the first feature
+    //             },
+    //             {
+    //               value: this.countries[0], // Value to match for the first feature
+    //               symbol: this.createRedSymbol() // Symbol for the first feature
+    //             },
+
+    //             // Add more uniqueValueInfos if needed
+    //           ]
+    //         });
+    //        this.layer.renderer = uniqueValueRenderer;
+    // }
+
+    // Apply the renderer to the layer
+
+    this.map.add(this.layer);
   }
   constructor(
     private fbs: FirebaseService
@@ -120,13 +185,15 @@ export class EsriMapComponent implements OnInit, OnDestroy {
         basemap: this.basemap
       };
 
-      Config.apiKey = "AAPK3d3d7e6b97a54d9aa874267b143844c4EwokuxKaJidQ3kY3cYyYoWQYW90mGO1xxEmOuP9fpVB8Ms3cTVUJStdch1IHKWLV";
+      Config.apiKey = "AAPK4362d1e510c5410783ea83c5fb2ae5d5mEO3vAC2Gw924ONPAGp0sbEyo5B6onZKVh_T-GG8DIPvn5rdsbz0JSv-mUlC8L2z";
 
       this.map = new WebMap(mapProperties);
 
-      this.addFeatureLayers("Romania");
+      this.addFeatureLayers();
       this.findPlaces([-117.196, 34.056]);
       this.addGraphicLayers();
+
+      this.map.add(this.layer);
 
       this.addPoint(this.pointCoords[1], this.pointCoords[0], true);
 
@@ -139,7 +206,7 @@ export class EsriMapComponent implements OnInit, OnDestroy {
       };
 
       this.view = new MapView(mapViewProperties);
-this.addRouter();
+      this.addRouter();
 
       // Fires `pointer-move` event when user clicks on "Shift"
       // key and moves the pointer on the view.
@@ -213,36 +280,32 @@ createRedSymbol(): SimpleFillSymbol {
     }
   });
 }
-  addFeatureLayers(highlightedCountry: string) {
-      // the boundaries
-      const layer = new FeatureLayer({
-        portalItem: {
-          id: "50391d4430c04b6abcdbc71c6b62a7de"
-        },
-        renderer: this.createRenderer() // Apply renderer to the layer
-      });
 
-      layer.queryFeatures().then((response) => {
-        const firstFeature = response.features[0];
-        const name = firstFeature.attributes.name;
-        // Create a UniqueValueRenderer for the layer
-            const uniqueValueRenderer = new UniqueValueRenderer({
-              field: "name", // Field to match
-              defaultSymbol: this.createDefaultSymbol(), // Default symbol for other features
-              uniqueValueInfos: [
-                {
-                  value: name, // Value to match for the first feature
-                  symbol: this.createRedSymbol() // Symbol for the first feature
-                }
-                // Add more uniqueValueInfos if needed
-              ]
-            });
+addFeatureLayers() {
 
-            // Apply the renderer to the layer
-            layer.renderer = uniqueValueRenderer;
-        console.log(name);
-      });
-      this.map.add(layer);
+      //baza de date colorat
+
+      // this.layer.queryFeatures().then((response) => {
+      //   const firstFeature = response.features[0];
+      //   const name = firstFeature.attributes.name;
+      //   // Create a UniqueValueRenderer for the layer
+      //       const uniqueValueRenderer = new UniqueValueRenderer({
+      //         field: "name", // Field to match
+      //         defaultSymbol: this.createDefaultSymbol(), // Default symbol for other features
+      //         uniqueValueInfos: [
+      //           {
+      //             value: name, // Value to match for the first feature
+      //             symbol: this.createRedSymbol() // Symbol for the first feature
+      //           }
+      //           // Add more uniqueValueInfos if needed
+      //         ]
+      //       });
+
+      //       // Apply the renderer to the layer
+      //       this.layer.renderer = uniqueValueRenderer;
+      //   console.log(name);
+      // });
+      // this.map.add(this.layer);
 
       console.log("feature layers added");
     }
