@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "types": ["@ionic/angular"],
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,

@@ -44,8 +44,8 @@ import RouteParameters from '@arcgis/core/rest/support/RouteParameters';
 import * as route from "@arcgis/core/rest/route.js";
 import * as locator from "@arcgis/core/rest/locator.js";
 
-// import { AppSearchBarComponent } from "./search-bar.component";
-// import { AppSearchBarComponent2 } from "./search-landmark.component";
+import { AppSearchBarComponent } from "./search-bar.component";
+import { AppSearchLandmarkComponent } from "./search-landmark.component";
 
 class SpatialReference {
   wkid;
@@ -164,7 +164,6 @@ export class EsriMapComponent implements OnInit, OnDestroy {
       this.map = new WebMap(mapProperties);
 
       this.addFeatureLayers();
-      this.findPlaces([-117.196, 34.056]);
       this.addGraphicLayers();
 
       this.map.add(this.layer);
@@ -261,7 +260,8 @@ addFeatureLayers() {
 
       console.log("feature layers added");
     }
-    addRouter() {
+
+addRouter() {
       const routeUrl = "https://route-api.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
 
       this.view.on("click", (event) => {
@@ -334,7 +334,8 @@ addFeatureLayers() {
         });
       }
     }
-  findPlaces(landmark) {
+
+  findPlaces(landmark: string) {
       const geocodingServiceUrl = "http://geocode-api.arcgis.com/arcgis/rest/services/World/GeocodeServer";
 
       const params = {

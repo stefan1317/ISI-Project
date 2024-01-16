@@ -1,6 +1,6 @@
 // app.module.ts
 import { BrowserModule } from "@angular/platform-browser";
-import { NgModule } from "@angular/core";
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { FormsModule } from '@angular/forms';  // Import FormsModule
 import { MatInputModule } from '@angular/material/input';  // Import MatInputModule
 
@@ -21,9 +21,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { FlexLayoutModule } from '@angular/flex-layout';
-
 import { AppSearchBarComponent } from './pages/esri-map/search-bar.component';
 import { AppSearchLandmarkComponent } from "./pages/esri-map/search-landmark.component";
+import { IonicModule } from '@ionic/angular';
+
 
 @NgModule({
   declarations: [AppComponent, EsriMapComponent, AppSearchBarComponent, AppSearchLandmarkComponent],
@@ -39,12 +40,15 @@ import { AppSearchLandmarkComponent } from "./pages/esri-map/search-landmark.com
     MatListModule,
     FlexLayoutModule,
     AngularFireModule.initializeApp(environment.firebase, 'AngularDemoArcGIS'),
-    AngularFireDatabaseModule
+    AngularFireDatabaseModule,
+    IonicModule,
+    IonicModule.forRoot({})
   ],
   providers: [
     FirebaseService,
     FirebaseMockService
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AppModule { }
