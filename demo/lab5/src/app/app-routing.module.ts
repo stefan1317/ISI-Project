@@ -7,16 +7,16 @@ import { RegisterComponent } from './pages/register/register.component';
 
 export const routes: Routes = [
   {
+    path: 'register',
+    component: RegisterComponent,
+  },
+  {
     path: 'home',
     component: HomeComponent,
   },
   {
     path: 'map',
     component: EsriMapComponent,
-  },
-  {
-    path: 'register',
-    component: RegisterComponent,
   },
   {
     path: '',

@@ -25,7 +25,7 @@ public class Utils {
 
         String jwt = Jwts.builder()
                 .claim("id", applicationUser.getId())
-                .setSubject(applicationUser.getEmail())
+                .setSubject(String.valueOf(applicationUser.getId()))
                 .setId(String.valueOf(applicationUser.getId()))
                 .setIssuedAt(Date.from(Instant.now()))
                 .setExpiration(Date.from(Instant.now().plus(60, ChronoUnit.MINUTES)))

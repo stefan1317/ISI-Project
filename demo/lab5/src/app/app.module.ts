@@ -24,11 +24,14 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { AppSearchBarComponent } from './pages/esri-map/search-bar.component';
 import { AppSearchLandmarkComponent } from "./pages/esri-map/search-landmark.component";
 import { IonicModule } from '@ionic/angular';
+import { RegisterComponent } from './pages/register/register.component';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
-  declarations: [AppComponent, EsriMapComponent, AppSearchBarComponent, AppSearchLandmarkComponent],
+  declarations: [AppComponent, EsriMapComponent, AppSearchBarComponent, AppSearchLandmarkComponent, RegisterComponent],
   imports: [
+    HttpClientModule,
     BrowserModule,
     FormsModule,  // Add FormsModule here
     MatInputModule,  // Add MatInputModule here
@@ -42,7 +45,7 @@ import { IonicModule } from '@ionic/angular';
     AngularFireModule.initializeApp(environment.firebase, 'AngularDemoArcGIS'),
     AngularFireDatabaseModule,
     IonicModule,
-    IonicModule.forRoot({})
+    IonicModule.forRoot({}),
   ],
   providers: [
     FirebaseService,
